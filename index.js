@@ -17,7 +17,7 @@ app.use(cors());
 const PORT = process.env.PORT || 5400;
 DB();
 
-app.use("/api",LazzyRoutes)
+app.use(LazzyRoutes)
 
 
 
