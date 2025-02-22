@@ -71,7 +71,9 @@ export const Signup=async(req,res)=> {
            _id:existUser._id,
            profilePic:existUser.profilePic,
            email:existUser.EmailAddress,
-           token
+           token,
+           postCount:existUser.postCount,
+           premium:existUser.premium
          })
         }
 
@@ -80,20 +82,6 @@ export const Signup=async(req,res)=> {
         return res.status(501).send({success:false,message:"Internal server error"})  
       }
   }
-
-  // export const GetuserImage=async(req,res)=>{
-  //   try {
-  //       const data=await User_Image.findOne({userName:req.query.userName})
-  //       if(!data){
-  //         return res.status(404).send({success:false,message:"Cannot find user image"})
-  //       }
-  //       return res.status(200).send({success:true,message:"successfully fetched user image",userImage:data.userImage})
-  //     } catch (error) {
-  //       console.log(error);
-        
-  //       return res.status(501).send({success:false,message:"Internal server Error"})
-  //     }
-  // }
 
   export const ThoughtsUpload=async(req,res)=>{
        const token=req.query.token
@@ -110,13 +98,17 @@ export const Signup=async(req,res)=> {
         if(!existUser){
           return res.status(404).json({success:false,message:"User is not found"})
         }
+          existUser.postCount+=1
+           await existUser.save()
           const newThought=new Thoughts({
             userId:existUser._id,
             UserTitle:title,
             UserThoughts:description,
           })
+
+           
           await newThought.save()
-          return res.status(200).send({success:true,message:"Thoughts uploaded successfully"})
+          return res.status(200).send({success:true,message:"Thoughts uploaded successfully",existUser})
        
       } catch (error) {
         console.log(error);
@@ -160,8 +152,15 @@ export const Signup=async(req,res)=> {
       }
   
       // Delete the post from the database
+      const user=jwt.verify(token,process.env.JWT_SECRET)
+      const userId=user.userId
+      const existUser=await User_Details.findById(userId)
+      
       const deletedPost = await Thoughts.findByIdAndDelete(id);
-  
+      if(existUser.postCount>0 || existUser.postCount<0){
+      existUser.postCount-=1
+      }
+      await existUser.save()
       if (!deletedPost) {
         return res.status(404).send({ success: false, message: "Post not found" });
       }
@@ -204,7 +203,9 @@ export const GetuserDetails = async (req, res) => {
       fullName: response.fullName,
       EmailAddress: response.EmailAddress,
       id:response._id,
-      profilePic:response.profilePic
+      profilePic:response.profilePic,
+      premium:response.premium,
+      postCount:response.postCount
     });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

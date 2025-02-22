@@ -14,6 +14,7 @@ const ThoughtsSchema=new mongoose.Schema({
     type: String,
     
   },
+  
 
     },
 

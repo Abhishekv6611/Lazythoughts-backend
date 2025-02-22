@@ -21,6 +21,14 @@ const UserSchema = new mongoose.Schema({
     type:String,
     default:"",
   },
+    premium:{
+    type:Boolean,
+    default:false,
+    },
+    postCount:{
+      type:Number,
+      default:0,
+    },
     token:{
       type:String,
       default:"",

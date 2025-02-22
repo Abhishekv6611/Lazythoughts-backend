@@ -11,6 +11,7 @@ import {
   UpdateUserName,
   UpdateProfilePic,
 } from "../controllers/LazzyControllers.js";
+import CheckPostLimit from "../middleware/checkPostLimit .js";
 
 const router = express.Router();
 
@@ -18,8 +19,7 @@ const router = express.Router();
 
 router.post("/signup", Signup);
 router.post("/login", Login);
-// router.post("/get-user-image",GetuserImage)
-router.post("/uploadThoughts", ThoughtsUpload);
+router.post("/uploadThoughts",CheckPostLimit,ThoughtsUpload);
 router.get("/getuserDetails", GetuserDetails);
 
 router.get("/getthoughts", Getthoughts);
