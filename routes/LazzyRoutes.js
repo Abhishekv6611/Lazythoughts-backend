@@ -10,6 +10,9 @@ import {
   GetAllpostDetails,
   UpdateUserName,
   UpdateProfilePic,
+  GetPremium,
+  Verify,
+  UpdatetoPremium,
 } from "../controllers/LazzyControllers.js";
 import CheckPostLimit from "../middleware/checkPostLimit .js";
 
@@ -28,5 +31,8 @@ router.put("/updatePost", UpdatePost);
 router.get("/getAllpostDetails", GetAllpostDetails);
 router.put("/updateusername", UpdateUserName);
 router.put("/updateprofile", UpdateProfilePic);
+router.post("/getpremium",GetPremium );
+router.post("/verify",Verify );
+router.put("/updatetopremium",UpdatetoPremium );
 
 export default router;

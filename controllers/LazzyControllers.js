@@ -3,7 +3,8 @@ import { generateToken } from "../lib/utils.js";
 import jwt from 'jsonwebtoken'
 import Thoughts from "../model/userImageModel.js";
 import cloudinary from "../lib/cloudinary.js";
-
+import Razorpay from 'razorpay'
+import crypto from 'crypto'
 
 export const Signup=async(req,res)=> {
     try {
@@ -331,5 +332,77 @@ export const UpdateProfilePic=async(req,res)=>{
      console.log(error);
      res.status(500).json({success:false,message:"Failed to update profile"})
      
+  }
+}
+
+export const GetPremium=async(req,res)=>{
+try {
+   const instance=new Razorpay({
+    key_id:process.env.KEY_ID,
+    key_secret:process.env.KEY_SECRET
+   })
+
+   const options={
+    amount:req.body.amount*100,
+    currency:"INR",
+    receipt:crypto.randomBytes(10).toString('hex'),
+   }
+   instance.orders.create(options,(err,order)=>{
+     if(err){
+      console.log(err);
+      return res.status(500).json({success:false,message:"Failed to create order"})
+     }
+     res.status(200).json(order)
+   })
+} catch (error) {
+  console.log(error);
+  res.status(500).json({success:false,message:"internal server error"})
+}
+}
+
+export const Verify=async(req,res)=>{
+  try {
+    const {razorpay_order_id,razorpay_payment_id,razorpay_signature}=req.body
+    const sign=razorpay_order_id+"|"+razorpay_payment_id
+    const expectedSign=crypto
+    .createHmac('sha256',process.env.KEY_SECRET)
+    .update(sign.toString())
+    .digest('hex')
+
+    if(razorpay_signature===expectedSign){
+      return res.status(200).json({success:true,message:"Payment successfully done"})
+    }else{
+      return res.status(400).json({success:false,message:"Invalid signature sent!"})
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({success:false,message:"internal server error"})  
+  }
+}
+
+
+export const UpdatetoPremium=async(req,res)=>{
+  const token=req.headers.token
+  const {premium}=req.body
+  try {
+     
+     if(!token || !premium){
+        return res.status(404).json({success:false,message:"Token or premium is required"})
+     }
+     const decoded=jwt.verify(token,process.env.JWT_SECRET)
+     const userId=decoded.userId
+     const existUser=await User_Details.findByIdAndUpdate(
+      userId,
+      {premium},
+      {new:true}
+     )
+    if(!existUser){
+      return res.status(404).json({success:false,messgae:"User not found"})
+    }
+    console.log(premium);
+    return res.status(200).json({success:true,message:"Successfully updated to premium",existUser})
+  } catch (error) {
+    console.log(error);
+    
   }
 }
