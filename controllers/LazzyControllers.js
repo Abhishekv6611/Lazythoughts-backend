@@ -400,7 +400,7 @@ export const UpdatetoPremium=async(req,res)=>{
       return res.status(404).json({success:false,messgae:"User not found"})
     }
     console.log(premium);
-    return res.status(200).json({success:true,message:"Successfully updated to premium",existUser})
+    return res.status(200).json({success:true,message:"Successfully updated to premium",premium})
   } catch (error) {
     console.log(error);
     
