@@ -480,40 +480,7 @@ export const ResetPassword = async (req, res) => {
   }
 };
 
-// export const ResetPassword = async (req, res) => {
-//   try {
-//     const token = req.headers.authorization;
-//     const { password } = req.body;
 
-//     if (!password) {
-//       return res.status(400).json({ success: false, message: "Password is required" });
-//     }
-
-//     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-//     const user = await User_Details.findOne({
-//       resetPasswordToken: hashedToken,
-//       resetPasswordExpireAt: { $gt: Date.now() }
-//     });
-    
-//     if (!user) {
-//       return res.status(400).json({ success: false, message: "Invalid or expired token" });
-//     }
-    
-//     user.password = password; // Ensure password is updated
-//     user.resetPasswordToken = undefined;
-//     user.resetPasswordExpireAt = undefined;
-    
-//     await user.save();
-//     await sendResetPasswordEmail(user.EmailAddress)
-    
-//     return res.status(200).json({ success: true, message: "Password reset successfully" });
-
-//   } catch (error) {
-//     console.log("Error in ResetPassword", error);
-//     return res.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// };
 
 
 
