@@ -13,6 +13,8 @@ import {
   GetPremium,
   Verify,
   UpdatetoPremium,
+  ForgotPassword,
+  ResetPassword,
 } from "../controllers/LazzyControllers.js";
 import CheckPostLimit from "../middleware/checkPostLimit .js";
 
@@ -35,4 +37,8 @@ router.post("/getpremium",GetPremium );
 router.post("/verify",Verify );
 router.put("/updatetopremium",UpdatetoPremium );
 
+router.post("/forgotpassword",ForgotPassword );
+router.post("/resetpassword/:token",ResetPassword );
+
 export default router;
+// yesterday installed nodemail & bcrypt

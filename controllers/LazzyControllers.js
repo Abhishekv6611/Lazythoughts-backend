@@ -5,6 +5,7 @@ import Thoughts from "../model/userImageModel.js";
 import cloudinary from "../lib/cloudinary.js";
 import Razorpay from 'razorpay'
 import crypto from 'crypto'
+import { ForgotPasswordEmail, sendResetPasswordEmail } from "../mail/nodemail.js";
 
 export const Signup=async(req,res)=> {
     try {
@@ -406,3 +407,113 @@ export const UpdatetoPremium=async(req,res)=>{
     
   }
 }
+
+
+export const ForgotPassword=async(req,res)=>{
+  const {email}=req.body
+  try {
+     const user=await User_Details.findOne({EmailAddress:email})
+      if(!user){
+          return res.status(400).json({success:false,message:"User not found"})
+      }
+      const resetPasswordToken = crypto.randomBytes(32).toString("hex");
+      // Hash the token before storing
+      const hashedToken = crypto.createHash("sha256").update(resetPasswordToken).digest("hex");
+      const resetPasswordExpireAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
+      user.resetPasswordToken = hashedToken;
+      user.resetPasswordExpireAt = resetPasswordExpireAt;
+
+        await user.save()
+        const resetUrl = `${process.env.CLIENT_URL}/resetpassword/${resetPasswordToken}`;
+        await ForgotPasswordEmail(user.EmailAddress, resetUrl);
+
+        return res.status(200).json
+        ({
+          success:true,
+          message:"password reset email sent successfully",
+          resetPasswordToken
+        })
+  } catch (error) {
+     console.log("Error in ForgotPassword",error);
+      return res.status(500).json({success:false,message:"Internal server error"})
+  }
+
+}
+
+export const ResetPassword = async (req, res) => {
+  try {
+    const token = req.params.token; // Get token from URL
+    console.log("Received Token:", token);
+
+    if (!token) {
+      return res.status(400).json({ success: false, message: "Token is missing" });
+    }
+
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ success: false, message: "Password is required" });
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User_Details.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpireAt: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid or expired token" });
+    }
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpireAt = undefined;
+
+    await user.save();
+    await sendResetPasswordEmail(user.EmailAddress);
+
+    return res.status(200).json({ success: true, message: "Password reset successfully" });
+
+  } catch (error) {
+    console.log("Error in ResetPassword", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// export const ResetPassword = async (req, res) => {
+//   try {
+//     const token = req.headers.authorization;
+//     const { password } = req.body;
+
+//     if (!password) {
+//       return res.status(400).json({ success: false, message: "Password is required" });
+//     }
+
+//     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+//     const user = await User_Details.findOne({
+//       resetPasswordToken: hashedToken,
+//       resetPasswordExpireAt: { $gt: Date.now() }
+//     });
+    
+//     if (!user) {
+//       return res.status(400).json({ success: false, message: "Invalid or expired token" });
+//     }
+    
+//     user.password = password; // Ensure password is updated
+//     user.resetPasswordToken = undefined;
+//     user.resetPasswordExpireAt = undefined;
+    
+//     await user.save();
+//     await sendResetPasswordEmail(user.EmailAddress)
+    
+//     return res.status(200).json({ success: true, message: "Password reset successfully" });
+
+//   } catch (error) {
+//     console.log("Error in ResetPassword", error);
+//     return res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// };
+
+
+

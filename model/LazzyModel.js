@@ -32,8 +32,12 @@ const UserSchema = new mongoose.Schema({
     token:{
       type:String,
       default:"",
-  },   
-});
+  },  
+  resetPasswordToken:String,
+  resetPasswordExpireAt:Date,
+  verificationToken:String,
+  verificationTokenExpireAt:Date, 
+  });
 
 const User_Details = mongoose.model("users_details", UserSchema); 
 export default User_Details;
