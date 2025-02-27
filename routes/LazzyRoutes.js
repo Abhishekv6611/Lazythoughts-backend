@@ -15,6 +15,7 @@ import {
   UpdatetoPremium,
   ForgotPassword,
   ResetPassword,
+  DeleteAccount,
 } from "../controllers/LazzyControllers.js";
 import CheckPostLimit from "../middleware/checkPostLimit .js";
 
@@ -39,6 +40,7 @@ router.put("/updatetopremium",UpdatetoPremium );
 
 router.post("/forgotpassword",ForgotPassword );
 router.post("/resetpassword/:token",ResetPassword );
+router.delete("/deleteaccount/:token",DeleteAccount );
 
 export default router;
 // yesterday installed nodemail & bcrypt

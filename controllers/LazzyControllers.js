@@ -60,6 +60,9 @@ export const Signup=async(req,res)=> {
           return res.status(400).send({success:false,message:"Data not found"})
          }
          const existUser=await User_Details.findOne({EmailAddress:email})
+         if (password !== existUser.password) {
+          return res.status(401).send({ success: false, message: "Invalid Password" });
+      }      
          console.log(existUser);
          if(!existUser){
           return res.status(401).send({success:false,message:"Invalid Email"})
@@ -480,7 +483,26 @@ export const ResetPassword = async (req, res) => {
   }
 };
 
+export const DeleteAccount=async(req,res)=>{
 
+     try {
+        const token=req.params.token
+        if(!token){
+          return res.status(400).json({success:false,message:"Token is required"})
+        }
+        const decoded=jwt.verify(token,process.env.JWT_SECRET)
+        const userId=decoded.userId
+        const existUser=await User_Details.findByIdAndDelete(userId)
+        await Thoughts.deleteMany({ userId });
+        if(!existUser){
+          return res.status(404).json({success:false,message:"User not found"})
+        }
+        return res.status(200).json({success:true,message:"User deleted successfully"})      
+     } catch (error) {
+      console.log(error)
+      return res.status(500).json({success:false,message:"Internal server error"})
+     }
+}
 
 
 
