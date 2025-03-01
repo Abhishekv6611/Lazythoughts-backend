@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
+import { Mailtemplate } from './Mailtemplate.js';
 
 dotenv.config()
 
@@ -10,13 +11,12 @@ const transporter = nodemailer.createTransport({
       pass: process.env.GMAIL_PASS, 
     },
   });
-
   export const ForgotPasswordEmail = async (email, resetUrl) => {
     const mailOptions = {
         from: `"Lazy thoghts" <${process.env.GMAIL_USER}>`,
         to: email,
         subject: "Want to reset Your Password!!",
-        html: "<h1>Click on the link below to reset your password</h1>" + resetUrl,  
+        html: Mailtemplate(resetUrl)  
       };
       try {
         await transporter.sendMail(mailOptions);
