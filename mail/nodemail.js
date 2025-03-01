@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
 };
 export const sendResetPasswordEmail=async(email)=>{
     const mailOptions = {
-        from: `"TuberLink" <${process.env.GMAIL_USER}>`,
+        from: `"LazyThoughts" <${process.env.GMAIL_USER}>`,
         to: email,
         subject: "Password reset successful",
         html: `Your password has been reset successfully.`,
